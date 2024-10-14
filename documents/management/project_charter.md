@@ -48,12 +48,12 @@ For this project, the budget will be defined based on the following resources:
     - Battery = ?€
     - WI-FI Card = ?€
     - NFC Card = ?€
+    - Screen = ?€
 2. Software
     - API Server
     - Code
     - ~~Database or Local Database?~~
-3. Time
-    - 
+3. ~~Human or time~~
 
 ## Risks & Assumptions
 | **ID** | **Description**                       | **Impact** | **Likelihood** | **Mitigation Strategy**                                      |
