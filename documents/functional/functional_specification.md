@@ -18,7 +18,7 @@
 9. [Appendices](#appendices)
 
 ## Introduction
-Some years ago when I where trainer with my parents, doing call back was a simple and strait forward task. We had approximately 10 trainees per session, so there where no difficulty at all for this task. However when I stopped being a trainer and became myself a trainee again to change job to be in the IT, I saw that doing this task depending the size of the organization isn't the same. For example I arrived in 2023 at ALGOSUP school and sawing Jean-Philipe losing around 20-30 minutes each morning and afternoon doing the call back for all students make me realize: "Why don't we automate this task?".
+Some years ago when I where trainer with my parents, doing roll call was a simple and strait forward task. We had approximately 10 trainees per session, so there where no difficulty at all for this task. However when I stopped being a trainer and became myself a trainee again to change job to be in the IT, I saw that doing this task depending the size of the organization isn't the same. For example I arrived in 2023 at ALGOSUP school and sawing Jean-Philipe losing around 20-30 minutes each morning and afternoon doing the roll call for all students make me realize: "Why don't we automate this task?".
 
 ## Objectives
 This is why today I present this project as moon shot. The main goal is to prevent losing more time doing this long and fastidious task for companies who don't want to lose energy and time, also I want to create something easy to use, compatible with a lot of devices, and also make it the less expensive as possible.
