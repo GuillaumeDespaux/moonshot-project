@@ -4,14 +4,15 @@
 The main goal of the project is to eliminate the task of roll call in the morning and afternoon for companies or schools. By doing so, the time cost of this task will be reduced to 0 hours per week for the administration.
 
 ## Scope
-This project must create a new ARDUINO hardware, configurable only by the administration of the building. The users/students will need a card to identify themselves for roll call when arriving. The system should not require interaction from the administration, except for the initial setup.
+This project must create a new hardware, only configurable by the administration of the building. The users will be needed to use a card to identify themselves when arriving. Then once identified, they will be asked to validate on their computer a demand to confirm their arrival (2FA). The system should not require interaction from the administration, except for the initial setup and the consultation of documents.
 
 ### Constraints
-- Users/students can exchange their cards to respond for someone else.
+- Users can exchange their cards to respond for someone else.
 - Video identification is not allowed.
 - Fingerprint identification is not allowed.
+- Users can use their personal devices rather the one given by one organization.
 
-To bypass these restrictions, the solution is to use a method for double authentication of the user/student. This will create a software that confirms 100% the presence of a specific user/student.
+To bypass these restrictions, the solution is to use a method with double authentication from the user. This will conduct to create a software that confirms 100% the user's presence.
 
 ### Compatibility
 Here is a list of devices that must be supported depending on the platform:
@@ -30,19 +31,19 @@ Here is a list of devices that must be supported depending on the platform:
 | Users            | Potential users of the final product               | Represents the final target audience for the project.      | N/A (Final delivery and demo)        |
 
 ## Deliverables & Milestones
-| **Milestone**             | **Document Name**           | **Deadlines** |
-|---------------------------|-----------------------------|---------------|
-| Functional Specification  | Functional Specification    | Not set       |
-| Technical Specification   | Technical Specification     | Not set       |
-| Hardware                  | None                        | Not set       |
-| Software                  | src                         | Not set       |
-| Test Plan                 | Test Plan                   | Not set       |
-| User Manual               | User Manual                 | Not set       |
+| **Milestone**             | **Document Name**           |
+|---------------------------|-----------------------------|
+| Functional Specification  | Functional Specification    |
+| Technical Specification   | Technical Specification     |
+| Hardware                  | arduino                     |
+| Software                  | src                         |
+| Test Plan                 | Test Plan                   |
+| User Manual               | User Manual                 |
 
 ## Budget
 For this project, the budget will be defined based on the following resources:
 1. Hardware
-    - ARDUINO Board = ?€
+    - ESP32 = ?€
     - NFC Reader = ?€
     - LED = ?€
     - Battery = ?€
@@ -52,8 +53,7 @@ For this project, the budget will be defined based on the following resources:
 2. Software
     - API Server
     - Code
-    - ~~Database or Local Database?~~
-3. ~~Human or time~~
+    - Database Server
 
 ## Risks & Assumptions
 | **ID** | **Description**                       | **Impact** | **Likelihood** | **Mitigation Strategy**                                      |
