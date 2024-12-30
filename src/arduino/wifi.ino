@@ -1,41 +1,7 @@
-/*
- WiFi Web Server LED Blink
 
- A simple web server that lets you blink an LED via the web.
- This sketch will print the IP address of your WiFi Shield (once connected)
- to the Serial monitor. From there, you can open that address in a web browser
- to turn on and off the LED on pin 5.
 
- If the IP address of your shield is yourAddress:
- http://yourAddress/H turns the LED on
- http://yourAddress/L turns it off
-
- This example is written for a network using WPA2 encryption. For insecure
- WEP or WPA, change the Wifi.begin() call and use Wifi.setMinSecurity() accordingly.
-
- Circuit:
- * WiFi shield attached
- * LED attached to pin 5
-
- created for arduino 25 Nov 2012
- by Tom Igoe
-
-ported for sparkfun esp32
-31.01.2017 by Jan Hendrik Berlin
-
- */
-
-#include <WiFi.h>
-
-const char *ssid = "Livebox-1EF0";
-const char *password = "hWiCSEUrCZsE3iwedQ";
-
-NetworkServer server(80);
-
-void setup() {
+void wifi_setup() {
   Serial.begin(115200);
-  pinMode(2, OUTPUT);  // set the LED pin mode
-
   delay(10);
 
   // We start by connecting to a WiFi network
@@ -43,15 +9,16 @@ void setup() {
   Serial.println();
   Serial.println();
   Serial.print("Connecting to ");
-  Serial.println(ssid);
+  Serial.println(Internet.ssid);
 
-  WiFi.begin(ssid, password);
+  WiFi.begin(Internet.ssid, Internet.password);
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
-
+  
+  
   Serial.println("");
   Serial.println("WiFi connected.");
   Serial.println("IP address: ");
@@ -60,7 +27,7 @@ void setup() {
   server.begin();
 }
 
-void loop() {
+void wifi() {
   NetworkClient client = server.accept();  // listen for incoming clients
 
   if (client) {                     // if you get a client,
@@ -82,9 +49,26 @@ void loop() {
             client.println();
 
             // the content of the HTTP response follows the header:
-            client.print("Click <a href=\"/\">here</a> to bip.<br>");
-            client.print("Click <a href=\"/H\">here</a> to turn the LED on pin 5 on.<br>");
-            client.print("Click <a href=\"/L\">here</a> to turn the LED on pin 5 off.<br>");
+            client.print("Click <a href=\"http://localhost:3000/api/"+String(Internet.structure)+"\">here</a> to bip.<br>");
+            client.print("Click <a href=\"http://localhost:3000/api/:collection/:id\">here</a> to turn the LED on pin 5 on.<br>");
+            client.print("Click <a href=\"/collectionGet\">here</a> to turn the LED on pin 5 off.<br>");
+
+
+            client.print("<form id='dynamicForm' method='POST'>");
+            client.print("<label for='id'>Document ID:</label>");
+            client.print("<input type='text' id='id' name='id' value=''>"); 
+            client.print("<input type='submit' value='Submit'>");
+            client.print("</form>");
+            client.print("<script>");
+            client.print("document.getElementById('dynamicForm').onsubmit = function(event) {");
+            client.print("  event.preventDefault();"); // Prevent default form submission
+            client.print("  const id = document.getElementById('id').value;"); 
+            client.print("  if (!id) { alert('Please enter a valid ID.'); return; }"); 
+            client.print("  this.action = 'http://localhost:3000/api/"+String(Internet.structure)+"/' + encodeURIComponent(id);"); 
+            client.print("  this.submit();"); // Submit the form
+            client.print("};");
+            client.print("</script>");
+
 
             // The HTTP response ends with another blank line:
             client.println();
@@ -98,21 +82,30 @@ void loop() {
         }
 
         // Check to see if the client request was "GET /H" or "GET /L":
-        if (currentLine.endsWith("GET /H")) {
+        if (currentLine.endsWith("GET /00")) {
           digitalWrite(2, HIGH);  // GET /H turns the LED on
         }
-        if (currentLine.endsWith("GET /L")) {
-          digitalWrite(2, LOW);  // GET /L turns the LED off
+        if (currentLine.endsWith("GET /api/" + String(Internet.structure))) {
         }
+        if (currentLine.endsWith("GET /collectionGet")) {
+        }
+
         if (currentLine.endsWith("GET /")) {
-          digitalWrite(2, LOW);
-          delay(1000);
-          digitalWrite(2, HIGH);
         }
       }
     }
     // close the connection:
     client.stop();
     Serial.println("Client Disconnected.");
+  }
+}
+
+bool CheckLastConne(void) {
+  if (WiFi.status() == WL_CONNECTED) {
+    return true;
+  }
+  else if (WiFi.status() == WL_CONNECT_FAILED || WL_CONNECTION_LOST || WL_DISCONNECTED)
+  {
+    return false;
   }
 }
