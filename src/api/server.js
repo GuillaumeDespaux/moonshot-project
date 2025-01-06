@@ -22,6 +22,10 @@ app.use(express.json());
 #########################
 */
 
+app.get('/', async (req, res) => {
+  res.status(200).json({ message: 'Welcome to the Firestore API!' });
+});
+
 // Read all collections
 app.get('/api/collections', async (req, res) => {
     try {
@@ -31,7 +35,6 @@ app.get('/api/collections', async (req, res) => {
         const collectionNames = collections.map(col => col.id);
 
         res.status(200).json({collections: collectionNames});
-        // res.redirect('http://192.168.1.28/collectionGet');
     } catch (error) {
         console.error('Error fetching collections:', error);
         res.status(500).json({ message: 'Error fetching collections' });
@@ -118,6 +121,8 @@ app.delete('/api/:collection/:id', async (req, res) => {
       res.status(500).json({ message: 'Error deleting document' });
     }
 })
+
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

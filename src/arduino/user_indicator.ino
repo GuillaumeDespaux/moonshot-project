@@ -15,9 +15,10 @@ void request_processing_start(void){
 } 
 
 void request_processing_end(void){
+    delay(500);
     digitalWrite(yellow_led, LOW);
 }
-void internet_connection(void){
+void request_internet_connection(void){
     digitalWrite(blue_led, HIGH);
     delay(500);
     digitalWrite(blue_led, LOW);

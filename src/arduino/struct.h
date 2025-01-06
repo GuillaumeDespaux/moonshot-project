@@ -16,6 +16,6 @@ typedef struct
 
     bool wifi_connected = false;
     bool nfc_connected = false;
-} boardGuill;
+} board;
 
 #endif

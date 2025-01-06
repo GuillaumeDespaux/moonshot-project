@@ -33,4 +33,6 @@ __pycache__/
 # Ignore bill
 bill
 src/api/serviceAccountKey.json
-src/arduino/internet_connection.h
+src/arduino/infrastructure.h
+*.bash
+*.firebaserc

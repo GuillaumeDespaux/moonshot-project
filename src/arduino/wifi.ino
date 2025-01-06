@@ -1,5 +1,3 @@
-
-
 void wifi_setup() {
   Serial.begin(115200);
   delay(10);
@@ -9,9 +7,9 @@ void wifi_setup() {
   Serial.println();
   Serial.println();
   Serial.print("Connecting to ");
-  Serial.println(Internet.ssid);
+  Serial.println(Infrastructure.ssid);
 
-  WiFi.begin(Internet.ssid, Internet.password);
+  WiFi.begin(Infrastructure.ssid, Infrastructure.password);
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -49,7 +47,7 @@ void wifi() {
             client.println();
 
             // the content of the HTTP response follows the header:
-            client.print("Click <a href=\"http://localhost:3000/api/"+String(Internet.structure)+"\">here</a> to bip.<br>");
+            client.print("Click <a href=\"http://localhost:3000/api/"+String(Infrastructure.name)+"\">here</a> to bip.<br>");
             client.print("Click <a href=\"http://localhost:3000/api/:collection/:id\">here</a> to turn the LED on pin 5 on.<br>");
             client.print("Click <a href=\"/collectionGet\">here</a> to turn the LED on pin 5 off.<br>");
 
@@ -64,11 +62,12 @@ void wifi() {
             client.print("  event.preventDefault();"); // Prevent default form submission
             client.print("  const id = document.getElementById('id').value;"); 
             client.print("  if (!id) { alert('Please enter a valid ID.'); return; }"); 
-            client.print("  this.action = 'http://localhost:3000/api/"+String(Internet.structure)+"/' + encodeURIComponent(id);"); 
+            client.print("  this.action = 'http://localhost:3000/api/"+String(Infrastructure.name)+"/' + encodeURIComponent(id);"); 
             client.print("  this.submit();"); // Submit the form
             client.print("};");
             client.print("</script>");
 
+            send_data_to_page(array);
 
             // The HTTP response ends with another blank line:
             client.println();
@@ -85,12 +84,14 @@ void wifi() {
         if (currentLine.endsWith("GET /00")) {
           digitalWrite(2, HIGH);  // GET /H turns the LED on
         }
-        if (currentLine.endsWith("GET /api/" + String(Internet.structure))) {
+        if (currentLine.endsWith("GET /api/" + String(Infrastructure.name))) {
         }
         if (currentLine.endsWith("GET /collectionGet")) {
         }
 
-        if (currentLine.endsWith("GET /")) {
+        if (currentLine.endsWith("GET /sendData")) {
+          send_data_to_page(array);
+          request_internet_connection();
         }
       }
     }
@@ -100,12 +101,72 @@ void wifi() {
   }
 }
 
-bool CheckLastConne(void) {
+bool check_last_internet_connection(void) {
   if (WiFi.status() == WL_CONNECTED) {
     return true;
   }
   else if (WiFi.status() == WL_CONNECT_FAILED || WL_CONNECTION_LOST || WL_DISCONNECTED)
   {
     return false;
+  }
+}
+
+void send_cards_data_to_database(card array[MAX_CARDS]){
+  for (uint8_t i = 0; i < MAX_CARDS; i++){
+    if (array[i].id != 0) { // Assuming 0 is an invalid ID
+      NetworkClient client;
+      Serial.println(client);
+      String url = "/api/" + String(Infrastructure.name) + "/" + String(array[i].id);
+      if (client.connect("192.168.1.28", 80)) {
+        String jsonData = "{\"last_connection\":" + String(array[i].last_time_checked) + "}";
+        client.print(String("POST ") + url + " HTTP/1.1\r\n" +
+                     "Host: 192.168.1.28\r\n" +
+                     "Content-Type: application/json\r\n" +
+                     "Connection: close\r\n" +
+                     "Content-Length: " + String(jsonData.length()) + "\r\n" +
+                     "\r\n" +
+                     jsonData);
+        delay(10); // Give the server time to respond
+        while (client.available()) {
+          String line = client.readStringUntil('\r');
+          Serial.print(line);
+        }
+        client.stop();
+      } else {
+        Serial.println("Connection to server failed");
+      }
+    }
+  }
+}
+void send_data_to_page(card array[MAX_CARDS]) {
+  NetworkClient client;
+  if (client.connect("192.168.1.28", 80)) {
+    String url = "/sendData";
+    String jsonData = "[";
+    for (uint8_t i = 0; i < MAX_CARDS; i++) {
+      if (array[i].id != 0) { // Assuming 0 is an invalid ID
+        if (i > 0) {
+          jsonData += ",";
+        }
+        jsonData += "{\"id\":" + String(array[i].id) + ",\"last_connection\":" + String(array[i].last_time_checked) + "}";
+      }
+    }
+    jsonData += "]";
+    
+    client.print(String("POST ") + url + " HTTP/1.1\r\n" +
+                 "Host: 192.168.1.28\r\n" +
+                 "Content-Type: application/json\r\n" +
+                 "Connection: close\r\n" +
+                 "Content-Length: " + String(jsonData.length()) + "\r\n" +
+                 "\r\n" +
+                 jsonData);
+    delay(10); // Give the server time to respond
+    while (client.available()) {
+      String line = client.readStringUntil('\r');
+      Serial.print(line);
+    }
+    client.stop();
+  } else {
+    Serial.println("Connection to server failed");
   }
 }

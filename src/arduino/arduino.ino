@@ -15,7 +15,7 @@
 #include <WiFi.h>
 
 // TIME + INTERN CONNECTION
-#include "internet_connection.h"
+#include "infrastructure.h"
 #include "struct.h"
 #include "time.h"
 
@@ -56,11 +56,14 @@ int blue_led = 12;
 // Initialize the NFC shield with I2C connection
 Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET);
 
-boardGuill Board;
+board Board;
 
+// Add the card to the array
+static card array[MAX_CARDS];  // Define the array to store cards
+static uint8_t card_count = 0;  // Keep track of the number of cards
 
 // WiFi
-internet_connection Internet;
+infrastructure Infrastructure;
 NetworkServer server(80);
 
 /*
@@ -104,7 +107,7 @@ void setup(void) {
 
 void loop() {
   wifi();
-  Board.wifi_connected = CheckLastConne();
+  Board.wifi_connected = check_last_internet_connection();
 
   if (!Board.wifi_connected && Board.signal_lost == 0) {
     Board.signal_lost = millis();
@@ -121,5 +124,14 @@ void loop() {
   Serial.println("");
 
 
+  if (card_count == 3) {
+    for (uint8_t i = 0; i < card_count; i++) {
+      send_cards_data_to_database(array);
+  }
+    Serial.println("Data sent to database");
+    request_internet_connection();
+    delete_all_cards(array);
+  }
   print_time();
+
 }

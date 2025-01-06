@@ -21,64 +21,46 @@ void nfc_read(void) {
 
     Serial.println(card_ui.id);
 
-    // Add the card to the array
-    static card array[MAX_CARDS];  // Define the array to store cards
-    static uint8_t card_count = 0;  // Keep track of the number of cards
-    
-    
     if (card_count < MAX_CARDS) {
-      
-      Serial.println(String(array[card_count-1].id) + " =? " + String(card_ui.id));
-      if (array[card_count-1].id != "\0" || array[card_count+1].id != "\0" || array[card_count].id != card_ui.id) {
-        request_processing_start();
-        for (uint8_t i = 0; i < MAX_CARDS; i++) {
-          Serial.println("Card number : " + String(i + 1));
-          if (array[i].id == card_ui.id) {
-            card_ui.is_present = true;
-            Serial.println("Card already registered");
-            request_processing_end();
-            request_failed();
-            break;
+      Serial.println(card_count < MAX_CARDS);
+      if (card_count > 0) {
+        Serial.println(card_count > 0);
+        if (array[card_count-1].id == card_ui.id){
+          card_ui.is_present = true;        
+          request_failed();
+        } 
+        else {
+          request_processing_start();
+          for (uint8_t i = 0; i < MAX_CARDS; i++) {
+            Serial.println("Card number : " + String(i+1));
+            if (array[i].id == card_ui.id ) {
+              card_ui.is_present = true;
+              Serial.println("Card already registered");
+              request_processing_end();
+              request_failed();
+              break;
+            }
           }
+          request_processing_end();
         }
-        request_processing_end();
+      }
+    }
 
-      }
-      
-      
-      if (!card_ui.is_present) {
-        card_ui.last_time_checked = getTime();
-        card_ui.is_present = true;
-        array[card_count] = card_ui;
-        card_count++;
-        Serial.println("Card added to the array");
-        request_success();
-      }
+    Serial.println("card_count = " + String(card_count));
+    if (!card_ui.is_present) {
+      card_ui.last_time_checked = getTime();
+      card_ui.is_present = true;
+      array[card_count] = card_ui;
+      card_count++;
+      Serial.println("Card added to the array");
+      request_success();
     }
       
     else if (card_count == MAX_CARDS) {
-      for (uint8_t i = 0; i < MAX_CARDS; i++) {
-        array[i].id = "\0";
-        array[i].last_time_checked = 0;
-        array[i].is_present = false;
-        Serial.println("Card " + String(i + 1) + " removed");
-      }
-      card_count = 0;
-    } 
-    else {
-      Serial.println("Card array is full!");
+      delete_all_cards(array);
     }
-
-    // Print all cards in the array
-    Serial.println("Cards in array:");
-    for (uint8_t i = 0; i < card_count; i++) {
-      Serial.print("Card ");
-      Serial.print(i + 1);
-      Serial.print(": ID = ");
-      Serial.print(array[i].id);
-      Serial.print(", Last Time Checked = ");
-      Serial.println(array[i].last_time_checked);
-    }
+    
+    print_all_cards(array);
     
     Serial.println("Current index = " + String(card_count));
     
@@ -148,36 +130,26 @@ String card_transpose(uint8_t uid[], uint8_t uidLength) {
   return ui_transform;
 }
 
-// void registerCard(String ui_transform, card deck_of_cards[MAX_CARDS]) {
-//   bool cardRegistered = false;
+void print_all_cards(card array[MAX_CARDS]){
+      // Print all cards in the array
+    Serial.println("Cards in array:");
+    for (uint8_t i = 0; i < card_count; i++) {
+      Serial.print("Card ");
+      Serial.print(i);
+      Serial.print(": ID = ");
+      Serial.print(array[i].id);
+      Serial.print(", Last Time Checked = ");
+      Serial.println(array[i].last_time_checked);
+    }
+}
 
-//   // Check if the card is already registered
-//   for (uint16_t i = 0; i < MAX_CARDS; i++) {
-//     if (deck_of_cards[i].id == ui_transform) {
-//       Serial.println("Card already registered");
-//       cardRegistered = true;
-//       break;
-//     }
-//   }
-
-//   // Register the card if it's not already registered
-//   if (!cardRegistered) {
-//     for (uint16_t i = 0; i < MAX_CARDS; i++) {
-//       if (deck_of_cards[i].id == "") {  // Find the first empty slot
-//         deck_of_cards[i].id = ui_transform;
-//         // Cards[i].last_time_checked = getTime();
-//         Serial.println("Card registered");
-//         break;
-//       }
-//     }
-//   }
-
-//   // Print the content of the Cards array
-//   Serial.println("Cards array content:");
-//   for (uint16_t i = 0; i < 10; i++) {
-//     Serial.print(i + ":");
-//     if (deck_of_cards[i].id != "") {
-//       Serial.println(deck_of_cards[i].id);
-//     }
-//   }
-// }
+void delete_all_cards(card array[MAX_CARDS]){
+  Serial.println("Card array is full!");
+  for (uint8_t i = 0; i < MAX_CARDS; i++) {
+    array[i].id = "\0";
+    array[i].last_time_checked = 0;
+    array[i].is_present = false;
+    Serial.println("Card " + String(i + 1) + " removed");
+  }
+  card_count = 0;
+}
