@@ -7,7 +7,7 @@
 **Project Name: None**<br>
 **Project Manager:** [DESPAUX Guillaume](https://github.com/GuillaumeDespaux)<br>
 **Last Update:** 01/23/2025<br>
-**Version:** 0.3
+**Version:** 0.2.0
 
 </div>
 
