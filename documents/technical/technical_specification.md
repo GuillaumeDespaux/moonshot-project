@@ -33,6 +33,20 @@
       - [6.2.2. Arduino](#622-arduino)
       - [6.2.3. API](#623-api)
       - [6.2.4. Software](#624-software)
+  - [7. System Architecture](#7-system-architecture)
+    - [7.1. Roll Call Taker](#71-roll-call-taker)
+    - [7.2. Database](#72-database)
+    - [7.3. API](#73-api)
+    - [7.4. Software](#74-software)
+  - [8. Processing Flow](#8-processing-flow)
+  - [9. Information Handling](#9-information-handling)
+    - [9.1. NFC Card](#91-nfc-card)
+    - [9.2. Roll Call Taker](#92-roll-call-taker)
+    - [9.3. Database](#93-database)
+    - [9.4. API](#94-api)
+    - [9.5. Software](#95-software)
+    - [9.6. Overview](#96-overview)
+  - [10. Internet Connectivity Issues](#10-internet-connectivity-issues)
 
 </details>
 
@@ -149,17 +163,45 @@ class className {
 };
 
 // Function
+/** // Documentation
+ * @brief Function description
+ * @param arg Description of the argument
+ * @return Description of the return
+ */
+int function(int arg);  // Will be placed in the include file (e.g. library.hpp)
 
+int function(int arg) {
+    return arg;
+}
 ```
 
 #### 6.2.2. Arduino
 
-```ino
+```cpp
 // Header file example .ino
+#include <Adafruit_PN532.h> // Imported library
+#include "library.h"        // My library
+
+/*
+  Initialize variables, objects, etc.
+*/
+
+void setup() {  // Setup the initializations
+  // Setup code
+}
+
+void loop() {   //Core of the code
+  // Loop code
+}
 ```
 
 ```h
 // Header file example .h
+#ifndef LIBRARY_H
+#define LIBRARY_H
+
+
+#endif
 ```
 
 #### 6.2.3. API
@@ -172,6 +214,98 @@ const bestConstant = require('bestConstant');
 
 #### 6.2.4. Software
 
-```unknown
+```unknown #TODO
 
 ```
+
+## 7. System Architecture
+
+### 7.1. Roll Call Taker
+
+### 7.2. Database
+
+### 7.3. API
+
+### 7.4. Software
+
+## 8. Processing Flow
+
+```mermaid
+graph LR
+    A[Roll Call Taker] --> B[Database]
+    B --> C[API]
+    C --> D[Software]
+    D --> A
+    D --> B
+    D --> C
+    C --> A
+    B --> A
+    A --> D
+    C --> B
+    B --> D
+```
+
+## 9. Information Handling
+
+### 9.1. NFC Card
+
+```mermaid
+graph LR
+
+```
+
+### 9.2. Roll Call Taker
+
+### 9.3. Database
+
+```mermaid
+---
+title: Animal example
+---
+classDiagram
+    note "From Duck till Zebra"
+    Animal <|-- Duck
+    note for Duck "can fly\ncan swim\ncan dive\ncan help in debugging"
+    Animal <|-- Fish
+    Animal <|-- Zebra
+    Animal : +int age
+    Animal : +String gender
+    Animal: +isMammal()
+    Animal: +mate()
+    class Duck{
+        +String beakColor
+        +swim()
+        +quack()
+    }
+    class Fish{
+        -int sizeInFeet
+        -canEat()
+    }
+    class Zebra{
+        +bool is_wild
+        +run()
+    }
+```
+
+### 9.4. API
+
+- none
+
+### 9.5. Software
+
+### 9.6. Overview
+
+## 10. Internet Connectivity Issues
+
+
+
+
+
+
+
+[^x]: Two Factor Authentication
+[^y]: Arduino
+[^z]: Near Field Communication
+[^a]: Firebase
+[^b]: Application Programming Interface
+[^c]: Mac Address
