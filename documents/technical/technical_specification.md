@@ -37,6 +37,10 @@
     - [7.1. Roll Call Taker](#71-roll-call-taker)
     - [7.2. Database](#72-database)
     - [7.3. API](#73-api)
+      - [GET](#get)
+      - [POST](#post)
+      - [PATCH](#patch)
+      - [DELETE](#delete)
     - [7.4. Software](#74-software)
   - [8. Processing Flow](#8-processing-flow)
   - [9. Information Handling](#9-information-handling)
@@ -214,7 +218,9 @@ const bestConstant = require('bestConstant');
 
 #### 6.2.4. Software
 
-```unknown #TODO
+<!-- #TODO -->
+
+```unknown 
 
 ```
 
@@ -222,9 +228,218 @@ const bestConstant = require('bestConstant');
 
 ### 7.1. Roll Call Taker
 
+The roll call taker is a device that will be used to take the roll calls of the users. The device will be composed of the following elements:
+
+<!-- #TODO (Blueprint/schematics) -->
+
 ### 7.2. Database
 
+The current database used is Firebase. The database is structured as follows:
+
+```bash
+├── company (collection)
+│   ├── entities (document)
+│   │   ├── machines (collection)
+│   │   │   └── id
+│   │   ├── staff (collection)
+│   │   │   └── id
+│   │   └── students (collection)
+│   │       └── id
+│   ├── infos (document)
+│   │   ├── address
+│   │   ├── name
+│   │   └── ect ...
+│   └── logs (document)
+│       └── MM-DD-YYYY (collection)
+│           └── user XXXX (document)
+│               └── connections (collection)
+│                   └── connection1 (document)
+│                       └── timestamp : (hour)
+│                       └── 2FA : (boolean)
+```
+
+```mermaid
+---
+title: Database Template
+---
+classDiagram
+    %% Root of the database
+    class Company {
+      +id companyId
+
+      create_company()
+      delete_company()
+    }
+
+    %% Documents that contains the data
+    class Entities {
+      +...
+    }
+    class Infos {
+      +string address
+      +string name
+      +string email
+      +string phone
+      +string website
+      +string logo
+
+      update_company_information()
+    }
+    class Logs {
+      <<Document>>
+      +... 
+
+      create_daily_log()
+    }
+
+    %% This section contains sub-collections within the "entities" collection.
+    class Machines {
+      <<Collection>>
+      +string serialNumber
+
+      create_machine(serialNumber)
+      delete_machine(serialNumber)
+    }
+    class Staffs {
+      <<Collection>>
+      +string staffId
+
+      create_staff(id)
+      read_staff(id)
+      update_staff(id)
+      delete_staff(id)
+    }
+    class Students {
+      <<Collection>>
+      +string studentId
+
+      create_student(id)
+      read_student(id)
+      update_student(id)
+      delete_student(id)
+    }
+    %% Machine structure
+    class Machine {
+      <<Document>>
+      +timestamp lastConnection
+      +string location
+      +string status
+    }
+
+    %% Staff structure
+    class Staff {
+      <<Document>>
+      +string lastName
+      +string firstName
+      +string email
+      +string phone
+      +string role
+    }
+
+    %% User structure
+    class Student {
+      <<Document>>
+      +string lastName
+      +string firstName
+      +string email
+      +string phone
+    }
+    %% Log structure
+    class DateLog {
+      <<Collection>>
+      +string date "MM-DD-YYYY"
+
+      create_user_log(id)
+    }
+    class UserLog {
+      <<Document>>
+      +string userId
+
+      create_connection()
+    }
+    class Connection {
+      <<Document>>
+      +Timestamp timestamp
+      +boolean twoFA
+
+
+      create_connection(timestamp)
+      update_boolean_2FA(boolean)
+    }
+    class Timestamp {
+      +string hour
+      +string day
+    }
+
+    %% Relationships between classes
+    Company --> Entities : contains
+    Company --> Infos : contains
+    Company --> Logs : contains
+
+    Entities --> Machines : contains
+    Entities --> Staffs : contains
+    Entities --> Students : contains
+
+    Machines --> Machine : contains
+    Staffs --> Staff : contains
+    Students --> Student : contains
+
+    Logs --> DateLog : organizes *
+    DateLog --> UserLog : contains *
+    UserLog --> Connection : contains *
+    Connection --> Timestamp : has
+
+
+
+```
+
 ### 7.3. API
+
+The API is a `Node.js` server that will be used with the `Express` library to connect the Roll Call Taker to the database and the database to the software and vice versa. The API will be composed of the following elements:
+
+#### GET
+
+|Methods|Path|Query|Description|
+|---|---|---|---|
+|**GET**|/api/:collection/|`companyId`|Returns the company information|
+|**GET**|/api/:collection/staffs/|`companyId`|Returns a list of all staff members|
+|**GET**|/api/:collection/staffs/:id|`companyId`, `staffId`|Returns the information of a staff member|
+|**GET**|/api/:collection/students/|`companyId`|Returns a list of all students|
+|**GET**|/api/:collection/students/:id|`companyId`, `studentId`|Returns the information of a student|
+|**GET**|/api/:collection/machines/|`companyId`|Returns a list of all machines|
+|**GET**|/api/:collection/machines/:id|`companyId`, `serialNumber`|Returns the information of a machine|
+|**GET**|/api/:collection/logs/|`companyId`|Returns the logs of the company|
+|**GET**|/api/:collection/logs/:date|`companyId`, `date`|Returns the logs of the company for a specific date|
+|**GET**|/api/:collection/logs/:date/:id|`companyId`, `date`, `userId`|Returns the logs of the company for a specific date and a specific user|
+
+#### POST
+
+|Methods|Path|Query|Description|
+|---|---|---|---|
+|**POST**|/api/:collection/staffs/|`companyId`|Create a new staff member|
+|**POST**|/api/:collection/students/|`companyId`|Create a new student|
+|**POST**|/api/:collection/machines/|`companyId`|Create a new machine|
+|**POST**|/api/:collection/logs/:date|`companyId`, `date`|Create a new log for a specific date|
+|**POST**|/api/:collection/logs/:date/:id|`companyId`, `date`, `userId`|Create a new log for a specific date and a specific user|
+
+#### PATCH
+
+|Methods|Path|Query|Description|
+|---|---|---|---|
+|**PATCH**|/api/:collection/|`companyId`|Update the company information|
+|**PATCH**|/api/:collection/staffs/:id|`companyId`, `staffId`|Update the information of a staff member|
+|**PATCH**|/api/:collection/students/:id|`companyId`, `studentId`|Update the information of a student|
+|**PATCH**|/api/:collection/machines/:id|`companyId`, `serialNumber`|Update the information of a machine|
+|**PATCH**|/api/:collection/logs/:date/:id|`companyId`, `date`, `userId`|Update the log of a specific date and a specific user|
+
+#### DELETE
+
+|Methods|Path|Query|Description|
+|---|---|---|---|
+|**DELETE**|/api/:collection/staffs/:id|`companyId`, `staffId`|Delete a staff member|
+|**DELETE**|/api/:collection/students/:id|`companyId`, `studentId`|Delete a student|
+|**DELETE**|/api/:collection/machines/:id|`companyId`, `serialNumber`|Delete a machine|
+|**DELETE**|/api/:collection/logs/:date/:id|`companyId`, `date`, `userId`|Delete the log of a specific date and a specific user|
 
 ### 7.4. Software
 
@@ -249,16 +464,16 @@ graph LR
 
 ### 9.1. NFC Card
 
-```mermaid
+<!-- ```mermaid
 graph LR
 
-```
+``` -->
 
 ### 9.2. Roll Call Taker
 
 ### 9.3. Database
 
-```mermaid
+<!-- ```mermaid
 ---
 title: Animal example
 ---
@@ -285,7 +500,7 @@ classDiagram
         +bool is_wild
         +run()
     }
-```
+``` -->
 
 ### 9.4. API
 
