@@ -14,6 +14,10 @@
 #include <WiFiAP.h>
 #include <WiFi.h>
 
+// YAML
+#include <ArduinoJson.h>
+#include <YAMLDuino.h>
+
 // TIME + INTERN CONNECTION
 #include "infrastructure.h"
 #include "struct.h"
@@ -46,6 +50,11 @@ int red_led = 26;
 int green_led = 27;
 int yellow_led = 14;
 int blue_led = 12;
+const int batteryPin = 34; // GPIO34 on the ESP32
+const float referenceVoltage = 3.3; // Reference voltage for the ESP32
+const float minVoltage = 3.0; // Minimum voltage for the battery
+const float maxVoltage = 4.2; // Maximum voltage for the battery
+
 
 /*
 ###################
@@ -82,6 +91,7 @@ void setup(void) {
   pinMode(blue_led, OUTPUT);
   pinMode(buzzer, OUTPUT);
   pinMode(2, OUTPUT);  // set the LED pin mode
+  pinMode(batteryPin, INPUT);
 
   
   Serial.println("Boot of the device :" + Board.id);
@@ -108,7 +118,7 @@ void setup(void) {
 void loop() {
   wifi();
   Board.wifi_connected = check_last_internet_connection();
-
+  digitalWrite(green_led, HIGH);
   if (!Board.wifi_connected && Board.signal_lost == 0) {
     Board.signal_lost = millis();
   } else if (Board.wifi_connected) {
@@ -124,7 +134,7 @@ void loop() {
   Serial.println("");
 
 
-  if (card_count == 3) {
+  if (card_count == 10) {
     for (uint8_t i = 0; i < card_count; i++) {
       send_cards_data_to_database(array);
   }
@@ -134,4 +144,26 @@ void loop() {
   }
   print_time();
 
+  int analogValue = analogRead(batteryPin); // Read the analog value from the battery pin
+  float voltage = (analogValue * referenceVoltage) / 4095.0; // Convert to voltage
+
+  // Calculate the battery percentage
+  float batteryPercentage = ((voltage - minVoltage) / (maxVoltage - minVoltage)) * 100.0;
+
+  // Ensure the battery percentage is within the range of 0 to 100
+  if (batteryPercentage > 100.0) {
+    batteryPercentage = 100.0;
+  } else if (batteryPercentage < 0.0) {
+    batteryPercentage = 0.0;
+  }
+
+  Serial.print("Analog Value: ");
+  Serial.print(analogValue);
+  Serial.print(" | Battery Voltage: ");
+  Serial.print(voltage);
+  Serial.print(" V | Battery Percentage: ");
+  Serial.print(batteryPercentage);
+  Serial.println(" %");
+  
+  print_YAML();
 }

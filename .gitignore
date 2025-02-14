@@ -36,3 +36,4 @@ src/api/serviceAccountKey.json
 src/arduino/infrastructure.h
 *.bash
 *.firebaserc
+*.yaml
