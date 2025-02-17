@@ -220,7 +220,7 @@ const bestConstant = require('bestConstant');
 
 <!-- #TODO -->
 
-```unknown 
+```electron
 
 ```
 
@@ -257,6 +257,123 @@ The current database used is Firebase. The database is structured as follows:
 │                       └── timestamp : (hour)
 │                       └── 2FA : (boolean)
 ```
+
+### 7.3. API
+
+The API is a `Node.js` server that will be used with the `Express` library to connect the Roll Call Taker to the database and the database to the software and vice versa. The API will be composed of the following elements:
+
+#### GET
+
+|Methods|Path|Query|Description|
+|---|---|---|---|
+|**GET**|/api/:collection/|`companyId`|Returns the company information|
+|**GET**|/api/:collection/staffs/|`companyId`|Returns a list of all staff members|
+|**GET**|/api/:collection/staffs/:id|`companyId`, `staffId`|Returns the information of a staff member|
+|**GET**|/api/:collection/students/|`companyId`|Returns a list of all students|
+|**GET**|/api/:collection/students/:id|`companyId`, `studentId`|Returns the information of a student|
+|**GET**|/api/:collection/machines/|`companyId`|Returns a list of all machines|
+|**GET**|/api/:collection/machines/:id|`companyId`, `serialNumber`|Returns the information of a machine|
+|**GET**|/api/:collection/logs/|`companyId`|Returns the logs of the company|
+|**GET**|/api/:collection/logs/:date|`companyId`, `date`|Returns the logs of the company for a specific date|
+|**GET**|/api/:collection/logs/:date/:id|`companyId`, `date`, `userId`|Returns the logs of the company for a specific date and a specific user|
+
+#### POST
+
+|Methods|Path|Query|Description|
+|---|---|---|---|
+|**POST**|/api/:collection/staffs/|`companyId`|Create a new staff member|
+|**POST**|/api/:collection/students/|`companyId`|Create a new student|
+|**POST**|/api/:collection/machines/|`companyId`|Create a new machine|
+|**POST**|/api/:collection/logs/:date|`companyId`, `date`|Create a new log for a specific date|
+|**POST**|/api/:collection/logs/:date/:id|`companyId`, `date`, `userId`|Create a new log for a specific date and a specific user|
+
+#### PATCH
+
+|Methods|Path|Query|Description|
+|---|---|---|---|
+|**PATCH**|/api/:collection/|`companyId`|Update the company information|
+|**PATCH**|/api/:collection/staffs/:id|`companyId`, `staffId`|Update the information of a staff member|
+|**PATCH**|/api/:collection/students/:id|`companyId`, `studentId`|Update the information of a student|
+|**PATCH**|/api/:collection/machines/:id|`companyId`, `serialNumber`|Update the information of a machine|
+|**PATCH**|/api/:collection/logs/:date/:id|`companyId`, `date`, `userId`|Update the log of a specific date and a specific user|
+
+#### DELETE
+
+|Methods|Path|Query|Description|
+|---|---|---|---|
+|**DELETE**|/api/:collection/staffs/:id|`companyId`, `staffId`|Delete a staff member|
+|**DELETE**|/api/:collection/students/:id|`companyId`, `studentId`|Delete a student|
+|**DELETE**|/api/:collection/machines/:id|`companyId`, `serialNumber`|Delete a machine|
+|**DELETE**|/api/:collection/logs/:date/:id|`companyId`, `date`, `userId`|Delete the log of a specific date and a specific user|
+
+### 7.4. Software
+
+The software is a desktop application for `Windows`, `macOS`, `Linux` that will be used to manage the users presence. The software will be composed of the following elements:
+
+<!-- #TODO -->
+
+## 8. Processing Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    Actor U as User
+    participant R as Roll Call Taker
+    participant A as API
+    participant D as Database
+    participant S as Software
+
+    U->>R: Present NFC Card
+    R->>A: Read NFC Card
+    A->>D: Store the user's presence
+    D->>S: Ask confirmation
+    S-->>A: Confirm the user's presence
+    A->>D: Update the user's presence
+```
+
+## 9. Information Handling
+
+This part will be about all the information that will be handled during the project with their format.
+
+### 9.1. NFC Card
+
+The NFC Card will contain the following information:
+
+```mermaid
+classDiagram
+  class NFC_Card{
+    int 0x5A 0x22 0x02 0x91
+  }
+```
+
+### 9.2. Roll Call Taker
+
+The Roll Call Taker will contain the following information:
+
+```mermaid
+---
+title: NFC Card information
+---
+classDiagram
+  class NFC_Card{
+    int 0x5A 0x22 0x02 0x91
+  }
+  
+  class Roll_Call_Taker{
+    +int _seconds
+    +int _nanoseconds
+    +int battery_level
+    +array NFC_Cards : [5A220291]
+
+    +string read_NFC_Card(int NFC_Card)
+  }
+
+  NFC_Card --> Roll_Call_Taker
+```
+
+### 9.3. Database
+
+The database will handle the following information:
 
 ```mermaid
 ---
@@ -388,123 +505,22 @@ classDiagram
     DateLog --> UserLog : contains *
     UserLog --> Connection : contains *
     Connection --> Timestamp : has
-
-
-
 ```
-
-### 7.3. API
-
-The API is a `Node.js` server that will be used with the `Express` library to connect the Roll Call Taker to the database and the database to the software and vice versa. The API will be composed of the following elements:
-
-#### GET
-
-|Methods|Path|Query|Description|
-|---|---|---|---|
-|**GET**|/api/:collection/|`companyId`|Returns the company information|
-|**GET**|/api/:collection/staffs/|`companyId`|Returns a list of all staff members|
-|**GET**|/api/:collection/staffs/:id|`companyId`, `staffId`|Returns the information of a staff member|
-|**GET**|/api/:collection/students/|`companyId`|Returns a list of all students|
-|**GET**|/api/:collection/students/:id|`companyId`, `studentId`|Returns the information of a student|
-|**GET**|/api/:collection/machines/|`companyId`|Returns a list of all machines|
-|**GET**|/api/:collection/machines/:id|`companyId`, `serialNumber`|Returns the information of a machine|
-|**GET**|/api/:collection/logs/|`companyId`|Returns the logs of the company|
-|**GET**|/api/:collection/logs/:date|`companyId`, `date`|Returns the logs of the company for a specific date|
-|**GET**|/api/:collection/logs/:date/:id|`companyId`, `date`, `userId`|Returns the logs of the company for a specific date and a specific user|
-
-#### POST
-
-|Methods|Path|Query|Description|
-|---|---|---|---|
-|**POST**|/api/:collection/staffs/|`companyId`|Create a new staff member|
-|**POST**|/api/:collection/students/|`companyId`|Create a new student|
-|**POST**|/api/:collection/machines/|`companyId`|Create a new machine|
-|**POST**|/api/:collection/logs/:date|`companyId`, `date`|Create a new log for a specific date|
-|**POST**|/api/:collection/logs/:date/:id|`companyId`, `date`, `userId`|Create a new log for a specific date and a specific user|
-
-#### PATCH
-
-|Methods|Path|Query|Description|
-|---|---|---|---|
-|**PATCH**|/api/:collection/|`companyId`|Update the company information|
-|**PATCH**|/api/:collection/staffs/:id|`companyId`, `staffId`|Update the information of a staff member|
-|**PATCH**|/api/:collection/students/:id|`companyId`, `studentId`|Update the information of a student|
-|**PATCH**|/api/:collection/machines/:id|`companyId`, `serialNumber`|Update the information of a machine|
-|**PATCH**|/api/:collection/logs/:date/:id|`companyId`, `date`, `userId`|Update the log of a specific date and a specific user|
-
-#### DELETE
-
-|Methods|Path|Query|Description|
-|---|---|---|---|
-|**DELETE**|/api/:collection/staffs/:id|`companyId`, `staffId`|Delete a staff member|
-|**DELETE**|/api/:collection/students/:id|`companyId`, `studentId`|Delete a student|
-|**DELETE**|/api/:collection/machines/:id|`companyId`, `serialNumber`|Delete a machine|
-|**DELETE**|/api/:collection/logs/:date/:id|`companyId`, `date`, `userId`|Delete the log of a specific date and a specific user|
-
-### 7.4. Software
-
-## 8. Processing Flow
-
-```mermaid
-graph LR
-    A[Roll Call Taker] --> B[Database]
-    B --> C[API]
-    C --> D[Software]
-    D --> A
-    D --> B
-    D --> C
-    C --> A
-    B --> A
-    A --> D
-    C --> B
-    B --> D
-```
-
-## 9. Information Handling
-
-### 9.1. NFC Card
-
-<!-- ```mermaid
-graph LR
-
-``` -->
-
-### 9.2. Roll Call Taker
-
-### 9.3. Database
-
-<!-- ```mermaid
----
-title: Animal example
----
-classDiagram
-    note "From Duck till Zebra"
-    Animal <|-- Duck
-    note for Duck "can fly\ncan swim\ncan dive\ncan help in debugging"
-    Animal <|-- Fish
-    Animal <|-- Zebra
-    Animal : +int age
-    Animal : +String gender
-    Animal: +isMammal()
-    Animal: +mate()
-    class Duck{
-        +String beakColor
-        +swim()
-        +quack()
-    }
-    class Fish{
-        -int sizeInFeet
-        -canEat()
-    }
-    class Zebra{
-        +bool is_wild
-        +run()
-    }
-``` -->
 
 ### 9.4. API
 
-- none
+The API is responsible for handling various types of information and ensuring secure and efficient communication between the Roll Call Taker, the database, and the software. The following details outline the information handling aspects of the API:
+
+|Data|Type|Description|
+|---|---|---|
+|`companyId`|?|The unique identifier of the company|
+|`staffId`|int|The unique identifier of the staff member|
+|`studentId`|int|The unique identifier of the student|
+|`serialNumber`|int|The unique identifier of the machine|
+|`date`|String|The date of the log|
+|`userId`|int|The unique identifier of the user|
+|`timestamp`|String|The time of the connection|
+|`2FA`|Boolean|The status of the Two Factor Authentication|
 
 ### 9.5. Software
 
